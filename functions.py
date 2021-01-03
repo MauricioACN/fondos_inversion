@@ -1,3 +1,10 @@
+import requests
+import pandas as pd
+from global_config import client
+
+payload={}
+headers = {}
+
 def read_csv_from_s3(bucket_name, key):
     data = client.get_object(Bucket=bucket_name, Key=key)
     data = pd.read_csv(data["Body"],sep = "|")

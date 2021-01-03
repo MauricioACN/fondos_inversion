@@ -5,19 +5,15 @@ import boto3
 import os
 from urllib3.exceptions import InsecureRequestWarning
 urllib3.disable_warnings(InsecureRequestWarning)
-from secrets import access_key_id,secret_access_key
 import functions
-
-##acceso a credenciales de aws para leer datos en la nube
-client = boto3.client("s3",aws_access_key_id = access_key_id,aws_secret_access_key = secret_access_key)
+from global_config import client
 
 url = "https://fiduciaria.grupobancolombia.com/consultarFondosInversion/rest/servicio/buscarInformacionFondo"
 url_fondos = "https://fiduciaria.grupobancolombia.com/consultarFondosInversion/rest/servicio/consultarListaFondos"
 
+#informacion de los fondos nit y nombre
 payload={}
 headers = {}
-
-#informacion de los fondos nit y nombre
 r_fondos = requests.get(url_fondos, headers=headers, data=payload,verify = False)
 data_fondos = r_fondos.json()
 data_fondos = pd.io.json.json_normalize(data_fondos)
@@ -41,15 +37,15 @@ for i in variables_to_transf:
 
 #validacion de no duplicados en la nube con la nueva data
 data_fondos_aws = functions.read_csv_from_s3(bucket_name="fondosinversion",key = "databases/data_fondos.csv")
-data_fondos_aws = data_fondos_aws.appendnd(data_fondos)
+data_fondos_aws = data_fondos_aws.append(data_fondos)
 data_fondos_aws.drop_duplicates(inplace = True)
 
 base_data_aws = functions.read_csv_from_s3(bucket_name="fondosinversion",key = "databases/base_data.csv")
-base_data_aws = base_data_aws.appendnd(base_data)
+base_data_aws = base_data_aws.append(base_data)
 base_data_aws.drop_duplicates(inplace = True)
 
 base_data_clean_aws = functions.read_csv_from_s3(bucket_name="fondosinversion",key = "databases/base_data_clean.csv")
-base_data_clean_aws = base_data_clean_aws.appendnd(base_data_clean)
+base_data_clean_aws = base_data_clean_aws.append(base_data_clean)
 base_data_clean_aws.drop_duplicates(inplace = True)
 
 #escribir bases de datos
@@ -57,7 +53,7 @@ data_fondos_aws.to_csv("data_fondos.csv",sep  = "|")
 base_data_clean_aws.to_csv("base_data_clean.csv",sep  = "|")
 base_data_aws.to_csv("base_data.csv",sep  = "|")
 
-#### escribir en aws
+### escribir en aws
 for file in os.listdir():
     if '.csv' in file:
         upload_file_bucket = "fondosinversion"
