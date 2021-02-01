@@ -1,6 +1,0 @@
-requests
-pandas as pd
-urllib3
-boto3
-os
-
