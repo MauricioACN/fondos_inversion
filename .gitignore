@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 secrets.py
 fondos/
+.vscode/
 
 # C extensions
 *.so
